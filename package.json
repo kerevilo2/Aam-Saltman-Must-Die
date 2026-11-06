@@ -1,0 +1,63 @@
+{
+  "name": "aam-saltman-must-die",
+  "productName": "Aam Saltman Must Die",
+  "version": "1.0.0",
+  "description": "AI-satire bullet hell with a multi-window desktop overlay",
+  "main": "electron/main.js",
+  "private": true,
+  "homepage": "https://github.com/kerevilo2/aam-saltman-must-die",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kerevilo2/aam-saltman-must-die.git"
+  },
+  "author": "kerevilo2",
+  "scripts": {
+    "start": "electron .",
+    "test": "node tests/headless.js",
+    "test:electron": "electron tests/electron-shot.js",
+    "build:win": "electron-builder --win nsis zip --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.9.2",
+    "electron-builder": "26.18.0"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11"
+  },
+  "build": {
+    "appId": "io.github.kerevilo2.aamsaltmanmustdie",
+    "productName": "Aam Saltman Must Die",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "electron/**/*",
+      "package.json"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "kerevilo2",
+        "repo": "aam-saltman-must-die",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ],
+      "artifactName": "AamSaltmanMustDie-v${version}-win-${arch}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "artifactName": "AamSaltmanMustDie-Setup-v${version}-win-${arch}.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true
+    }
+  }
+}

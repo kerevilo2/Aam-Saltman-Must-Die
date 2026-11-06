@@ -1,0 +1,49 @@
+name: Build desktop app
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main']
+    paths: ['index.html', 'electron/**', 'package.json', 'package-lock.json', '.github/workflows/build.yml']
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aam-saltman-must-die-win
+          path: |
+            dist/AamSaltmanMustDie-*.exe
+            dist/AamSaltmanMustDie-*.zip
+            dist/*.blockmap
+            dist/latest.yml
+
+  # One release per version in package.json. The installer, its blockmap and
+  # latest.yml must be published together: they are the auto-update feed.
+  release:
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          shopt -s globstar nullglob
+          assets=(out/**/*.zip out/**/*.exe out/**/*.blockmap out/**/latest.yml)
+          gh release view "v$V" >/dev/null 2>&1 || gh release create "v$V" "${assets[@]}" --target "$GITHUB_SHA" --latest --title "Aam Saltman Must Die v$V" --notes "Windows: run the Setup installer for automatic updates, or extract the portable ZIP. Built from $GITHUB_SHA."
