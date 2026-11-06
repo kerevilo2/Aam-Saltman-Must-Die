@@ -20,7 +20,10 @@ async function run(win){
  await js(win,"CFG.clr=0;CFG.dmode=1;go();CHS.god=1;taint();'ok'");
  await wait(2200);await shot(win,'02-run-overlay');
  console.log('desktop mode:',await js(win,'DMW+" panels "+DR.map(r=>r.k).join("")'));
- await js(win,"rs();stage=9;wave=2;begin();'ok'");
+ await js(win,"rs();E=[];stage=3;wave=1;startWave();SR={k:'dark',n:'BLACK BOX',mt:1};SPW.find(x=>x.k=='dark').f();'ok'");
+ await wait(3500);await shot(win,'02b-black-box');
+ console.log('black box windows:',await js(win,'DR.filter(r=>r.k=="e").map(r=>r.lab).join(", ")'));
+ await js(win,"rs();E=[];spawnQ=[];stage=9;wave=2;begin();'ok'");
  await wait(250);await shot(win,'03-shatter-cracks');
  await wait(450);await shot(win,'04-shatter-shards');
  await wait(500);await shot(win,'05-shatter-late');
