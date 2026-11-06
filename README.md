@@ -17,9 +17,16 @@ take down their founder, **Aam Saltman**. No autopilot, no copilot.
 - **Classic**: the whole game in one 960×640 window (also what the browser
   version uses). Aam's entrance shatters the game window instead.
 
-Switch in **Settings → Display**. Settings also has **Monitor**, **Clear desktop
-on run** (minimizes other windows when a run starts, Windows only) and
-**updates**.
+Switch with the **mode button on the title screen** (next to Difficulty) or in
+**Settings → Display**. Settings also has **Monitor**, **Clear desktop on run**
+(minimizes other windows when a run starts, Windows only) and **updates**.
+
+## Screen ratio
+
+**Settings → Screen ratio** is **Auto** by default: it detects your monitor's
+shape and sizes the arena to match (16:9 screens get a wider arena, 4:3 a taller
+one). You can also set 3:2, 16:10, 16:9, 4:3 or 21:9 by hand. Menus keep their
+size and stay centered.
 
 ## Download
 

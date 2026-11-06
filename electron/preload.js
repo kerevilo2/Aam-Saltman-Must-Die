@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('AAM',{
  minimize:()=>ipcRenderer.send('aam:minimize'),
  fullscreen:()=>ipcRenderer.send('aam:fullscreen'),
  quit:()=>ipcRenderer.send('aam:quit'),
+ arena:(w,h)=>ipcRenderer.send('aam:arena',w,h),
  displays:()=>ipcRenderer.invoke('aam:displays'),
  selectDisplay:id=>ipcRenderer.invoke('aam:display-select',id),
  onDisplays:callback=>ipcRenderer.on('aam:displays',(_,state)=>callback(state)),

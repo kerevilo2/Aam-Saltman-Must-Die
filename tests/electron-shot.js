@@ -26,6 +26,8 @@ async function run(win){
  await wait(500);await shot(win,'05-shatter-late');
  await wait(1600);await shot(win,'06-aam-fight');
  console.log('shatter done:',await js(win,'SH===null&&!!boss&&boss.n'));
+ await js(win,"dealOpen();lk=0;'ok'");await wait(400);await shot(win,'07a-deal');
+ console.log('deal offer intact:',await js(win,'Array.isArray(DL)&&DL.length==2&&S'));await js(win,'takeDeal(0);"ok"');
  await js(win,"S='pause';'ok'");await wait(300);await shot(win,'07-pause');
  await js(win,"toMenu();'ok'");await wait(1500);await shot(win,'08-back-to-menu');
  console.log('menu restored:',await js(win,'"DMW="+DMW+" S="+S'),win.getBounds());
