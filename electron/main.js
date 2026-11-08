@@ -22,6 +22,7 @@ function createMain(){
  main.webContents.on('will-navigate',e=>e.preventDefault());
  main.once('ready-to-show',()=>main.show());
  main.on('page-title-updated',e=>e.preventDefault());
+ main.on('restore',()=>{fillWorkArea();setTimeout(fillWorkArea,150)});
  main.on('closed',()=>{main=null;app.quit()});
  main.loadFile(path.join(__dirname,'..','index.html'));
 }
@@ -51,7 +52,8 @@ ipcMain.on('aam:arena',(event,w,h)=>{
  if(!trusted(event))return;w=Math.round(+w);h=Math.round(+h);if(!(w>=320&&w<=4000&&h>=320&&h<=4000)||(w===arena.w&&h===arena.h))return;
  arena={w,h};if(!desktop&&!main.isFullScreen()){menuBounds=displays.menuRect(displays.current().workArea);main.setBounds(menuBounds,false)}
 });
-ipcMain.on('aam:minimize',event=>{if(trusted(event))main.minimize()});
+// Windows ignores minimize while a mouse button is still held on a frameless window, so retry briefly.
+ipcMain.on('aam:minimize',event=>{if(!trusted(event))return;let n=0;const go=()=>{if(!main||main.isDestroyed()||main.isMinimized())return;main.minimize();if(++n<6)setTimeout(go,120)};go()});
 ipcMain.on('aam:fullscreen',event=>{if(trusted(event)&&!desktop)main.setFullScreen(!main.isFullScreen())});
 ipcMain.on('aam:quit',event=>{if(trusted(event))app.quit()});
 ipcMain.handle('aam:displays',event=>trusted(event)?displays.list():null);

@@ -28,8 +28,8 @@ Switch with the **mode button on the title screen** (next to Difficulty) or in
   turns off glows, scan lines, stars and bullet trails, cuts particles and
   renders at 1× resolution.
 - **Accessibility**: colour-blind bullet palette (Okabe-Ito), bullet outlines,
-  reduced motion (no shake, glitches or window shatter), large text, and game
-  speed 100 / 85 / 70 % (slower runs earn half tokens).
+  reduced motion (no shake, glitches or window shatter), large text,
+  crosshair size and colour, and game speed 100 / 85 / 70 % (slower runs earn half tokens).
 - **Controls**: rebind move, dash, pulse and pause. Arrow keys always move too.
   You can also replay the first-run tutorial from here.
 
@@ -73,7 +73,7 @@ You can also open `index.html` in a browser to play Classic mode.
 | Mouse | Aim · hold left click to fire |
 | Space / Shift | Dash |
 | Q / E / right-click | Pulse (when charged) |
-| 1 / 2 / 3 | Pick a card · right-click a card to banish it |
+| 1 / 2 / 3 | Pick a card · or move left/right and press Enter, Space or Dash · right-click a card to banish it |
 | Esc / P | Pause (M quits to menu from pause) |
 | F | Fullscreen (Classic) |
 

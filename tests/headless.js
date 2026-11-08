@@ -5,12 +5,12 @@ const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const game=html.match(/<script>([\s\S]*)<\/script>/)[1];
 let failed=0;
 for(const file of fs.readdirSync(path.join(__dirname,'suites')).filter(f=>f.endsWith('.js'))){
- const ctx=new Proxy(function(){},{get:(t,k)=>k=='measureText'?()=>({width:10}):ctx,set:()=>true,apply:()=>ctx});
+ const ctx=new Proxy(function(){},{get:(t,k)=>k=='measureText'?(txt)=>({width:String(txt).length*8}):ctx,set:()=>true,apply:()=>ctx});
  const el=()=>({getContext:()=>ctx,style:{},addEventListener(){},getBoundingClientRect:()=>({left:0,top:0,width:960,height:640})});
- const logs=[];
+ const logs=[],L={};
  const sandbox={console:{log:(...a)=>logs.push(a.join(' ')),error:(...a)=>logs.push('error: '+a.join(' '))},setTimeout,clearTimeout,Date,Math,JSON,Set,Map,Proxy,Number,String,Object,Array,
   document:{getElementById:el,createElement:el,addEventListener(){},hidden:false,documentElement:{classList:{add(){},remove(){}}}},
-  localStorage:{getItem:()=>null,setItem(){},removeItem(){}},addEventListener(){},innerWidth:960,innerHeight:640,devicePixelRatio:1,
+  localStorage:{getItem:()=>null,setItem(){},removeItem(){}},addEventListener(type,fn){(L[type]=L[type]||[]).push(fn)},dispatchEvent(e){for(const fn of L[e.type]||[])fn(e)},Event:function(type){this.type=type;this.preventDefault=()=>{}},innerWidth:960,innerHeight:640,devicePixelRatio:1,
   requestAnimationFrame(){},navigator:{getGamepads:()=>[]},AudioContext:function(){throw 1}};
  sandbox.window=sandbox;
  // Older suites predate the boot screen and first-run tutorial: start them at the title with onboarding done.
