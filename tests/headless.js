@@ -13,7 +13,9 @@ for(const file of fs.readdirSync(path.join(__dirname,'suites')).filter(f=>f.ends
   localStorage:{getItem:()=>null,setItem(){},removeItem(){}},addEventListener(){},innerWidth:960,innerHeight:640,devicePixelRatio:1,
   requestAnimationFrame(){},navigator:{getGamepads:()=>[]},AudioContext:function(){throw 1}};
  sandbox.window=sandbox;
- const code=game+';\n'+fs.readFileSync(path.join(__dirname,'suites',file),'utf8');
+ // Older suites predate the boot screen and first-run tutorial: start them at the title with onboarding done.
+ const pre=file=='features.js'?'':'LS.tut=1;S="title";\n';
+ const code=game+';\n'+pre+fs.readFileSync(path.join(__dirname,'suites',file),'utf8');
  try{vm.runInNewContext(code,sandbox,{filename:file})}catch(e){logs.push('ERR '+e.stack.split('\n').slice(0,3).join(' | '))}
  const bad=logs.some(l=>/^(FAIL|ERR|ERRORS)/.test(l.trim()));if(bad)failed++;
  console.log((bad?'FAIL ':'ok   ')+file);if(bad||process.env.VERBOSE)console.log(logs.map(l=>'   '+l).join('\n'));

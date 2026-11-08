@@ -21,6 +21,20 @@ Switch with the **mode button on the title screen** (next to Difficulty) or in
 **Settings → Display**. Settings also has **Monitor**, **Clear desktop on run**
 (minimizes other windows when a run starts, Windows only) and **updates**.
 
+## Settings
+
+- **Graphics**: Auto (default), High or Low. Auto starts on Low on PCs with 4
+  or fewer CPU cores and switches to Low if the game keeps running slowly. Low
+  turns off glows, scan lines, stars and bullet trails, cuts particles and
+  renders at 1× resolution.
+- **Accessibility**: colour-blind bullet palette (Okabe-Ito), bullet outlines,
+  reduced motion (no shake, glitches or window shatter), large text, and game
+  speed 100 / 85 / 70 % (slower runs earn half tokens).
+- **Controls**: rebind move, dash, pulse and pause. Arrow keys always move too.
+  You can also replay the first-run tutorial from here.
+
+New players get a short interactive tutorial on their first run (Enter skips it).
+
 ## Screen ratio
 
 **Settings → Screen ratio** is **Auto** by default: it detects your monitor's

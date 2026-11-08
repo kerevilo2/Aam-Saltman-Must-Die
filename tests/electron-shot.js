@@ -15,7 +15,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function shot(win,name){const img=await win.webContents.capturePage();fs.writeFileSync(path.join(out,name+'.png'),img.toPNG());const b=win.getBounds(),bm=img.toBitmap(),sz=img.getSize(),px=(x,y)=>{const i=(y*sz.width+x)*4;return bm[i+3]};console.log('shot',name,b.width+'x'+b.height,'corner alpha',px(4,sz.height-4),'mid-left alpha',px(20,sz.height>>1))}
 const js=(win,code)=>win.webContents.executeJavaScript(code);
 async function run(win){
- await wait(1200);await shot(win,'01-title');
+ await wait(800);await js(win,"LS.tut=1;S='title';'ok'");await wait(400);await shot(win,'01-title');
  console.log('bridge:',await js(win,'NATV&&typeof AAM.desktop'));
  await js(win,"CFG.clr=0;CFG.dmode=1;go();CHS.god=1;taint();'ok'");
  await wait(2200);await shot(win,'02-run-overlay');

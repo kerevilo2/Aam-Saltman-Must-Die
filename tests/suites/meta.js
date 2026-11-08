@@ -9,7 +9,7 @@ ck('achievements fire',()=>{AG={};TOK=0;newGame();S='play';const e={k:0,x:1,y:1,
  newGame();score=5000;fin();console.log('     tokens from 5000 score:',P.te);
  newGame();S='pick';cards=[SAC.find(s=>s[0]=='Accept All Cookies'),UP[0],UP[1]];PV=cards.map(preview);lk=0;choose(0);console.log('     cookies:',!!AG.cookies);
  console.log('     earned',Object.keys(AG).length,'TOK',TOK)});
-ck('skin buy/equip',()=>{TOK=1000;AG={};SKN={own:{human:1},eq:'human'};S='skin';P=null;BT=[];M.x=300;M.y=180;draw();drawUI();const b=BT.find(b=>b.x==262&&b.y==112);b.f();console.log('     bought cursor:',!!SKN.own.cursor,SKN.eq,'TOK',TOK,'spend ach',!!AG.spend)});
+ck('skin buy/equip',()=>{TOK=1000;AG={};SKN={own:{human:1},eq:'human'};S='skin';P=null;BT=[];M.x=300;M.y=180;draw();drawUI();const b=BT.find(b=>b.x==262&&b.y==104);b.f();console.log('     bought cursor:',!!SKN.own.cursor,SKN.eq,'TOK',TOK,'spend ach',!!AG.spend)});
 ck('cheats block achievements',()=>{AG={};newGame();taint();kill({k:0,x:1,y:1,c:'#ff4fa3',r:10});console.log('     first while cheating:',!!AG.first);for(const k in CHS)CHS[k]=0;newGame()});
 console.log(errs?'ERRORS '+errs:'ALL PASS');
 
