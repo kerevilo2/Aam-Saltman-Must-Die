@@ -27,4 +27,5 @@ ck('loading tips rotate and quitting needs the CAPTCHA',()=>{
  capVerify();if(CAP.st!==1||CAP.n!==1)throw Error('first verify should fail');capVerify();if(CAP.st!==2)throw Error('second verify should pass');
  for(let i=0;i<80;i++)frame();if(CAP)throw Error('captcha did not finish')});
 ck('Escape cancels the CAPTCHA and keeps the pause',()=>{S='pause';quitAsk(toMenu);CAP=null;if(S!=='pause')throw Error('state')});
+ck('signing a sacrifice card sends the valuation soaring',()=>{go();if(TUT)tutEnd();deal();cards[0]=[...cards[0]];cards[0][4]='max';P.mhp=6;P.hp=6;S='pick';lk=0;const v=P.val;choose(0);if(!(P.val-v>=40))throw Error('jump too small: '+(P.val-v))});
 if(errs)throw Error(errs+' satire checks failed');
