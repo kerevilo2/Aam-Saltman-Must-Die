@@ -73,7 +73,7 @@ You can also open `index.html` in a browser to play Classic mode.
 | Mouse | Aim · hold left click to fire |
 | Space / Shift | Dash |
 | Q / E / right-click | Pulse (when charged) |
-| 1 / 2 / 3 | Pick a card · or move left/right and press Enter, Space or Dash · right-click a card to banish it |
+| 1 / 2 / 3 | Pick a card · or move left/right and press Enter, Space or Dash · right-click a card to banish it · down + Enter or the Skip button declines all three for +500 score |
 | Esc / P | Pause (M quits to menu from pause) |
 | F | Fullscreen (Classic) |
 
@@ -95,6 +95,10 @@ The whole game is `index.html` (one self-contained file). `electron/` is the
 desktop shell: `main.js` (window, IPC), `preload.js` (the only bridge the page
 gets, exposed as `window.AAM`), `displays.js` (monitor choice) and `updater.js`
 (GitHub Releases updates for the installed build).
+
+### Credits
+
+Icons: [Lucide](https://lucide.dev) (ISC License, portions MIT from Feather).
 
 ### Releasing
 

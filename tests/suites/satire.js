@@ -16,7 +16,7 @@ ck('runs track valuation, rate limits fire without blocking, death gets an AI su
  P.rl=0.01;satTick();if(!RLP)throw Error('rate limit did not fire');for(let i=0;i<60;i++)frame();if(S!=='play')throw Error('rate limit changed state');
  P.inv=0;P.sh=0;U.rev=0;P.hp=1;const v1=P.val;hurt();if(S!=='over')throw Error('did not die');if(!(P.val>v1))throw Error('death lowered valuation');
  if(!P.sum||!/Sources:/.test(P.sum))throw Error('no summary: '+P.sum);for(let i=0;i<120;i++)frame();
- if(!/💧/.test(envTxt(P.rt,P.kc)))throw Error('env text');if(!LS.hist[0])throw Error('no history');S='stats';frame()});
+ if(!/@droplet/.test(envTxt(P.rt,P.kc)))throw Error('env text');if(!LS.hist[0])throw Error('no history');S='stats';frame()});
 ck('loading tips rotate and quitting needs the CAPTCHA',()=>{
  if(tipAt(0)===tipAt(1)||!tipAt(-3))throw Error('tips');
  go();if(TUT)tutEnd();S='pause';quitAsk(toMenu);frame();if(MBI<0)throw Error('captcha not modal');

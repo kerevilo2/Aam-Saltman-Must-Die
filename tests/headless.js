@@ -11,7 +11,7 @@ for(const file of fs.readdirSync(path.join(__dirname,'suites')).filter(f=>f.ends
  const sandbox={console:{log:(...a)=>logs.push(a.join(' ')),error:(...a)=>logs.push('error: '+a.join(' '))},setTimeout,clearTimeout,Date,Math,JSON,Set,Map,Proxy,Number,String,Object,Array,
   document:{getElementById:el,createElement:el,addEventListener(){},hidden:false,documentElement:{classList:{add(){},remove(){}}}},
   localStorage:{getItem:()=>null,setItem(){},removeItem(){}},addEventListener(type,fn){(L[type]=L[type]||[]).push(fn)},dispatchEvent(e){for(const fn of L[e.type]||[])fn(e)},Event:function(type){this.type=type;this.preventDefault=()=>{}},innerWidth:960,innerHeight:640,devicePixelRatio:1,
-  requestAnimationFrame(){},navigator:{getGamepads:()=>[]},AudioContext:function(){throw 1}};
+  requestAnimationFrame(){},navigator:{getGamepads:()=>[]},AudioContext:function(){throw 1},Path2D:function(){}};
  sandbox.window=sandbox;
  // Older suites predate the boot screen and first-run tutorial: start them at the title with onboarding done.
  const pre=file=='features.js'?'':'LS.tut=1;S="title";\n';
