@@ -35,6 +35,14 @@ Switch with the **mode button on the title screen** (next to Difficulty) or in
 
 New players get a short interactive tutorial on their first run (Enter skips it).
 
+## Satire extras
+
+A cookie banner greets you on every launch (good luck rejecting it), the boot
+screen has AI-generated tips, the HUD tracks Aam Corp's valuation (it only goes
+up), GHAT CPT throttles you with fake rate-limit pop-ups, summarises each lost run
+with total confidence, and the Stats page counts the water and power your runs
+used. Quitting asks you to prove you are human. None of it changes difficulty.
+
 ## Screen ratio
 
 **Settings → Screen ratio** is **Auto** by default: it detects your monitor's
