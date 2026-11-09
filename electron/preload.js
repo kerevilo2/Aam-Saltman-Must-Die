@@ -18,7 +18,5 @@ contextBridge.exposeInMainWorld('AAM',{
  installUpdate:()=>ipcRenderer.invoke('aam:update-install'),
  openReleases:()=>ipcRenderer.send('aam:open-releases'),
  onUpdate:callback=>ipcRenderer.on('aam:update',(_,state)=>callback(state)),
- wasKilled:()=>ipcRenderer.invoke('aam:was-killed'),
- penaltyDone:()=>ipcRenderer.send('aam:penalty-done'),
  onCloseRequest:callback=>ipcRenderer.on('aam:close-request',(_,n)=>callback(n))
 });

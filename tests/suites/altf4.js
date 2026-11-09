@@ -11,7 +11,3 @@ ck('hard CAPTCHA: 6 correct timed rounds quit, a mistake resets',()=>{go();S='pa
 ck('a second Alt+F4 keeps the same hard CAPTCHA',()=>{go();S='pause';hardQuit();CAP.st=1;solve();const c=CAP;if(CAP&&CAP.hard){CAP.msg='Pressing Alt+F4 again will not help.'}if(CAP!==c||CAP.rd!==1)throw Error('replaced')});
 ck('normal quit CAPTCHA is unchanged (first verify fails, second passes)',()=>{quitAsk(()=>{});CAP.st=1;capVerify();if(CAP.st!==1)throw Error('first passed');capVerify();if(CAP.st!==2)throw Error('second failed');CAP=null});
 CAP=null;if(errs)console.log('ERRORS',errs);
-ck('End task penalty: hard CAPTCHA on the title, Escape cannot dismiss it, solving clears it',()=>{let done=0;AAM={penaltyDone(){done=1},quit(){}};go();toMenu();S='title';CK=0;CAP=null;KILLQ=1;killCheck();
- if(!CAP||!CAP.hard||!CAP.pen)throw Error('no penalty captcha');dispatchEvent(Object.assign(new Event('keydown'),{code:'Escape'}));if(!CAP)throw Error('Escape dismissed it');
- CAP.st=1;for(let i=0;i<6;i++)solve();if(CAP.st!==2)throw Error('not solved');const f=CAP.f;f();if(!done)throw Error('penaltyDone not called');CAP=null});
-CAP=null;if(errs)console.log('ERRORS',errs);
