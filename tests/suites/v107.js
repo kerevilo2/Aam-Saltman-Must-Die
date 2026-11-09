@@ -18,4 +18,8 @@ ck('animations run without errors',()=>{
  go();if(TUT)tutEnd();for(let i=0;i<3;i++){spawn(0,200+i*50,200)}E.forEach(e=>e.w=0);kill(E[0]);P.dt=.1;P.dx=1;P.dy=0;for(let i=0;i<30;i++){upd();draw();ui(()=>{drawUI();satDraw()})}
  deal();S='pick';lk=0;for(let i=0;i<20;i++)ui(drawUI);choose(0);if(!FLY)throw Error('no fly-in');for(let i=0;i<60;i++)ui(satDraw);if(FLY)throw Error('fly-in never finished');
  S='title';for(let i=0;i<10;i++)ui(drawUI);S='set';for(let i=0;i<10;i++)ui(drawUI)});
+ck('Aam requisitions your RAM: sticks rise from the bottom and get absorbed',()=>{
+ go();if(TUT)tutEnd();CHS.god=1;E=[];spawnQ=[];B=[];stage=9;wave=2;begin();boss.intro=0;for(let i=0;i<3;i++)upd();boss.ph=1;boss.T.ram=0.001;
+ let seen=0;for(let i=0;i<60*5;i++){upd();draw();seen=Math.max(seen,B.filter(q=>q.ram).length);if(S!='play')S='play'}
+ if(seen<5)throw Error('too few RAM sticks: '+seen);if(!(boss.rg>0))throw Error('no RAM was absorbed');CHS.god=0});
 if(errs)throw Error(errs+' v107 checks failed');
