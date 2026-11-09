@@ -47,8 +47,9 @@ changes difficulty.
 
 Desktop only, off by default: **Settings → Real RAM attack** (two confirmations)
 makes Aam Saltman's RAM attack take nearly all of your PC's physical RAM (all
-but 1.5 GB), pushing other programs out to the page file, for about 8 seconds,
-then give it back. It runs in a separate helper process, never fills a
+but 1.5 GB), pushing other programs out to the page file. Every new RAM attack restarts a
+60-second hold, so he keeps it for the rest of the fight and gives it back the
+moment the fight ends (win, death or quit). It runs in a separate helper process, never fills a
 fixed-size page file, and turns off with one click.
 
 ## Screen ratio

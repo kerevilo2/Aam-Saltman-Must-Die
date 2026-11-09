@@ -814,12 +814,14 @@ function natDraw(){if(!NATV)return;
   btn('Real RAM attack: '+(CFG.ramx?'ON':'Off'),650,496,280,44,()=>{if(CFG.ramx){CFG.ramx=0;saveD()}else{S='ramx';RXS=0;RXT=0}},{sz:15,c:CFG.ramx?'#ff2d55':'#7a7698'});
   T(CFG.ramx?'Aam really takes your RAM. Click to turn off.':'Opt-in. Aam takes nearly all your real RAM.',790,552,11,CFG.ramx?'#ff7a90':'#6a6690','center','normal')}}
 /* Real RAM attack (desktop, opt-in, two confirmations): Aam's RAM attack makes a helper process fill free RAM for 2x the attack. */
-var RXS=0,RXT=0,RAMX=null;const RAMMS=8400;
+var RXS=0,RXT=0,RAMX=null;const RAMMS=60000; // each RAM attack (re)starts a 60 s hold, so it lasts the rest of the fight
 if(NATV&&AAM.onRam)AAM.onRam(m=>{if(!m)return;if(m.phase=='released'||m.phase=='error'){if(RAMX)RAMX.on=0;return}RAMX=RAMX||{};RAMX.on=1;RAMX.gb=m.gb||0;if(m.phase=='full')RAMX.full=1})
-function ramxGo(){if(!NATV||!CFG.ramx||!AAM.ramHog||(RAMX&&RAMX.on))return;RAMX={on:1,gb:0,full:0};AAM.ramHog(RAMMS)}
+function ramxGo(){if(!NATV||!CFG.ramx||!AAM.ramHog)return;if(!(RAMX&&RAMX.on))RAMX={on:1,gb:0,full:0};AAM.ramHog(RAMMS)}
+// Give the RAM back as soon as the Aam fight is over (win, death, quit to menu).
+function ramxEnd(){if(RAMX&&RAMX.on&&!(boss&&boss.n==9&&['play','pause','deal'].includes(S))){RAMX.on=0;try{AAM.ramStop()}catch(e){}}}
 function ramxHud(){if(!RAMX||!RAMX.on||S!='play')return;const s='REAL RAM REQUISITIONED · '+RAMX.gb.toFixed(1)+' GB'+(RAMX.full?' · YOUR PC IS NOW A DATACENTER':'');T(s,480,72,fitSz(s,14,640),'#2fd27a')}
 function ramxDraw(){if(S!='ramx')return;RXT+=Math.min(dt||.016,.05);T('Real RAM attack',W/2,64,38,'#ff2d55');
- if(RXS==0){['When Aam Saltman uses his RAM attack, the game will take nearly ALL of your PC’s RAM,','pushing every other program out to disk, hold it for about 8 seconds, then give it back.','','Your whole PC (and this game) will lag hard. Save your work in other programs first.','1.5 GB of RAM always stays for Windows, and a fixed page file is never filled up.','You can turn it off again here with a single click.'].forEach((l,i)=>T(l,W/2,150+i*30,16,i==3?'#ff7a90':'#d8d4ff','center','normal'));
+ if(RXS==0){['When Aam Saltman uses his RAM attack, the game will take nearly ALL of your PC’s RAM,','pushing every other program out to disk, and keep it for the REST OF THE FIGHT. Then he gives it back.','','Your whole PC (and this game) will lag hard. Save your work in other programs first.','1.5 GB of RAM always stays for Windows, and a fixed page file is never filled up.','You can turn it off again here with a single click.'].forEach((l,i)=>T(l,W/2,150+i*30,16,i==3?'#ff7a90':'#d8d4ff','center','normal'));
   T('Confirmation 1 of 2',W/2,370,13,'#9a96c8','center','normal');btn('I understand, continue',W/2-170,400,340,48,()=>{RXS=1;RXT=0},{sz:16,c:'#ff7a90'});btn('No thanks',W/2-110,470,220,40,()=>S='set',{sz:15})}
  else{T('Are you really, really sure?',W/2,170,26,'#fff');T('Aam Saltman will take almost all of your actual RAM during the fight. Everything will lag.',W/2,220,16,'#d8d4ff','center','normal');T('Confirmation 2 of 2',W/2,370,13,'#9a96c8','center','normal');
   const lk=Math.max(0,2-RXT);btn('No, take me back',W/2-330,400,300,48,()=>S='set',{sz:16});btn(lk>0?'Wait '+lk.toFixed(1)+'s…':'Yes, let him take my RAM',W/2+30,400,300,48,()=>{if(RXT<2)return;CFG.ramx=1;saveD();S='set';snd(220,.3,'square',.06,-80)},{sz:16,c:lk>0?'#5a5680':'#ff2d55'})}}
@@ -1005,7 +1007,7 @@ function capDraw(){if(!CAP)return;CAP.t+=Math.min(dt||.016,.05);if(CAP.st==2&&CA
   if(sel){g.fillStyle='#4a90e2';circ(tx+14,ty+14,10);T('✓',tx+14,ty+14,13,'#fff')}ckBtn(tx,ty,100,86,()=>{if(CAP.st!=1)return;CAP.sel.has(i)?CAP.sel.delete(i):CAP.sel.add(i);snd(500,.03,'square',.03)})}
  if(CAP.msg)T(CAP.msg,W/2,y+378,fitSz(CAP.msg,13,w-24),CAP.st==2?'#1a8a3a':'#c0303a','center','normal');
  if(CAP.st==1){btn(CAP.hard?'Keep playing':'Cancel',x+14,y+392,110,30,()=>CAP=null,{sz:13});btn(CAP.sel.size?'Verify':'Skip',x+w-124,y+392,110,30,capVerify,{sz:13,c:'#7ab8ff'})}}
-function satDraw(){animDraw();rlDraw();sumDraw();cookieDraw();capDraw()}
+function satDraw(){ramxEnd();animDraw();rlDraw();sumDraw();cookieDraw();capDraw()}
 /* ---- animations: debris, dash afterimages, engine flame, card fly-in, button pop ---- */
 var DB=[],GHO=[],FLY=null,BPOP=null,PKT=0,CHV=[],MLS='',MTT=1;
 function debris(e){if(LOWG)return;for(let i=0;i<6;i++){const a=i/6*PI*2+MR()*.6,sp=120+MR()*200;DB.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:e.r*(.35+MR()*.3),a:MR()*7,va:(MR()-.5)*14,l:.55,c:e.c})}if(DB.length>160)DB.splice(0,DB.length-160)}

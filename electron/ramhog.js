@@ -2,10 +2,12 @@
 // electron/main.js) so killing it frees everything at once.
 // It tries to own nearly ALL physical RAM (total minus 1.5 GB), which forces Windows
 // to push other programs out to the page file, and keeps touching its memory so
-// Windows cannot trim it back. Then it holds for `ms` and exits.
+// Windows cannot trim it back. Then it holds for `ms` and exits. The game can send
+// {extend:ms} (each new RAM attack) to restart the hold, and stops it when the fight ends.
 // Safety: never more than total RAM - 1.5 GB; on a FIXED-size page file it also stops
 // 2 GB short of the commit limit (so other programs never fail to allocate); it stops
-// filling after 12 s per 32 GB of RAM; and it always exits when its time is up or the game goes away.
+// filling after 12 s per 32 GB of RAM; it always exits when its time is up or the game goes away,
+// and never lives longer than 15 minutes in total.
 // Usage: ramhog.js <holdMs> [capGB]   (capGB is for tests only)
 const {Worker,isMainThread,parentPort,workerData}=require('node:worker_threads');
 const GB=1024**3,CHUNK=128*1024**2,PAGE=4096;
@@ -19,13 +21,13 @@ if(!isMainThread){
    held.push(b);parentPort.postMessage({add:CHUNK});
    if(held.length%2==0)return setImmediate(fill); // let the stop flag be seen promptly
   }
-  let v=0;(function touch(){if(Atomics.load(st,1))return;v=(v+1)&255;for(const b of held)for(let i=0;i<b.length;i+=PAGE)b[i]=v;setImmediate(touch)})();
+  let v=0;(function touch(){if(Atomics.load(st,1))return;v=(v+1)&255;for(const b of held)for(let i=0;i<b.length;i+=PAGE)b[i]=v;setTimeout(touch,100)})(); // a pass about every 0.1-1 s keeps pages resident without pinning the CPU
  })();
  return;
 }
 
 const os=require('node:os'),{execFile}=require('node:child_process');
-const ms=Math.max(1000,Math.min(30000,Number(process.argv[2])||8400));
+const clampMs=v=>Math.max(1000,Math.min(120000,Number(v)||60000));let ms=clampMs(process.argv[2]);
 const cap=Number(process.argv[3])>0?Number(process.argv[3])*GB:Infinity;
 // Scales UP with bigger PCs (more time and threads for 64 GB+), never below the 32 GB baseline.
 const fillMs=Math.max(12000,12000*os.totalmem()/(32*GB));
@@ -34,7 +36,10 @@ let got=0,done=false,full=false,workers=[];
 const send=m=>{try{process.send&&process.send(m)}catch(_){}};
 const quit=()=>{if(done)return;done=true;Atomics.store(st,0,1);Atomics.store(st,1,1);send({phase:'released'});setTimeout(()=>process.exit(0),50)};
 process.on('disconnect',quit);process.on('SIGTERM',quit);
-setTimeout(quit,2000+fillMs+ms).unref?.(); // absolute limit: setup + fill + hold
+let holdT=null,lifeT=null;
+const life=()=>{clearTimeout(lifeT);lifeT=setTimeout(quit,2000+fillMs+ms)}; // setup + fill + hold, reset on extend
+life();setTimeout(quit,15*60*1000); // hard cap, whatever happens
+process.on('message',m=>{if(m&&m.extend&&!done){ms=clampMs(m.extend);life();if(full){clearTimeout(holdT);holdT=setTimeout(quit,ms)}send({phase:'extended',gb:got/GB})}});
 setInterval(()=>{},1000);
 
 // Ask Windows about the page file once: automatic page files grow, fixed ones are a hard limit.
@@ -42,7 +47,7 @@ function pageInfo(){return new Promise(res=>{if(process.platform!=='win32')retur
  execFile('powershell.exe',['-NoProfile','-NonInteractive','-Command','$o=Get-CimInstance Win32_OperatingSystem;$c=Get-CimInstance Win32_ComputerSystem;"$($c.AutomaticManagedPagefile) $($o.FreeVirtualMemory)"'],{windowsHide:true,timeout:2000},(e,out)=>{
   if(e)return res(null);const [a,f]=String(out).trim().split(/\s+/);res({auto:a==='True',commitFree:Number(f)*1024})})})}
 
-function stopFill(){if(full)return;full=true;Atomics.store(st,0,1);send({phase:'full',gb:got/GB});setTimeout(quit,ms)}
+function stopFill(){if(full)return;full=true;Atomics.store(st,0,1);send({phase:'full',gb:got/GB});holdT=setTimeout(quit,ms)}
 
 pageInfo().then(pi=>{
  if(done)return;
