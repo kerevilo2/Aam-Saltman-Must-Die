@@ -1,12 +1,19 @@
 // One transparent native window. Menus use a 960x640 frame; runs in
 // multi-window mode stretch it over the work area and the game draws panels.
 const {app,BrowserWindow,ipcMain,screen,shell,powerMonitor}=require('electron');
-const path=require('node:path');
+const path=require('node:path'),fs=require('node:fs');
 const {createUpdateService}=require('./updater');
 const {createDisplays}=require('./displays');
 
 // Alt+F4 / taskbar close is intercepted: the game asks for a (very hard) CAPTCHA first.
 // Real quits (the in-game Quit, update installs, Windows shutdown, a crashed page) set allowClose.
+// End task (taskbar / Task Manager) kills the process and cannot be intercepted, so a session marker
+// remembers it: if the last session never closed cleanly, the next launch demands the hard CAPTCHA first.
+// The marker is only cleared once that CAPTCHA is solved, so quitting from it does not dodge it.
+let killed=false,owner=false,sessionFile=null;
+function sessionStart(){owner=true;sessionFile=path.join(app.getPath('userData'),'session.lock');try{killed=fs.readFileSync(sessionFile,'utf8')==='open'}catch(_){}
+ try{fs.mkdirSync(path.dirname(sessionFile),{recursive:true});fs.writeFileSync(sessionFile,'open')}catch(_){}}
+function sessionEnd(){if(owner&&!killed)try{fs.unlinkSync(sessionFile)}catch(_){}}
 let allowClose=false,closeAsks=0,main=null,desktop=false,menuBounds=null,updates=null,arena={w:960,h:640};
 const displays=createDisplays({app,screen,getWindow:()=>main,isDesktop:()=>desktop,getArena:()=>arena,onSelected:d=>{if(!desktop)menuBounds=displays.menuRect(d.workArea)}});
 // Restoring after "minimize all" can leave a frameless window at a tiny size,
@@ -62,6 +69,8 @@ ipcMain.on('aam:arena',(event,w,h)=>{
 // Windows ignores minimize while a mouse button is still held on a frameless window, so retry briefly.
 ipcMain.on('aam:minimize',event=>{if(!trusted(event))return;let n=0;const go=()=>{if(!main||main.isDestroyed()||main.isMinimized())return;main.minimize();if(++n<6)setTimeout(go,120)};go()});
 ipcMain.on('aam:fullscreen',event=>{if(trusted(event)&&!desktop)main.setFullScreen(!main.isFullScreen())});
+ipcMain.handle('aam:was-killed',event=>trusted(event)?killed:false);
+ipcMain.on('aam:penalty-done',event=>{if(trusted(event)){killed=false;try{fs.writeFileSync(sessionFile,'open')}catch(_){}}});
 ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});
 ipcMain.handle('aam:displays',event=>trusted(event)?displays.list():null);
 ipcMain.handle('aam:display-select',(event,id)=>{if(!trusted(event))throw new Error('Unknown window');return displays.select(id)});
@@ -75,6 +84,7 @@ if(!app.requestSingleInstanceLock())app.quit();
 else{
  app.on('second-instance',()=>{if(main){if(main.isMinimized())main.restore();main.focus()}});
  app.whenReady().then(()=>{
+  sessionStart();
   createMain();
   powerMonitor.on('shutdown',()=>{allowClose=true});
   updates=createUpdateService({app,notify:state=>{if(main&&!main.isDestroyed())main.webContents.send('aam:update',state)}});
@@ -83,4 +93,5 @@ else{
  });
 }
 app.on('before-quit',()=>{allowClose=true;updates?.dispose()});
+app.on('will-quit',sessionEnd);
 app.on('window-all-closed',()=>app.quit());

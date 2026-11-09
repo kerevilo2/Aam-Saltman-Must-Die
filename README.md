@@ -42,7 +42,8 @@ screen has AI-generated tips, the HUD tracks Aam Corp's valuation (it only goes
 up), GHAT CPT throttles you with fake rate-limit pop-ups, summarises each lost run
 with total confidence, and the Stats page counts the water and power your runs
 used. Quitting asks you to prove you are human, and in the desktop app Alt+F4
-summons a much harder, timed CAPTCHA (one wrong answer resets it). None of it
+summons a much harder, timed CAPTCHA (one wrong answer resets it). Killing it
+with End task works, but the next launch makes you solve that CAPTCHA first. None of it
 changes difficulty.
 
 ## Screen ratio

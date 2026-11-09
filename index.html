@@ -152,7 +152,7 @@ cv.addEventListener('mousedown',e=>{m(e);if(e.button==2){M.r=1;if(S=='pick')bani
 addEventListener('mouseup',e=>{if(e.button==2)M.r=0;else M.d=0;if(MINQ){MINQ=0;try{AAM.minimize()}catch(_){}}});var MINQ=0;
 cv.oncontextmenu=e=>e.preventDefault();
 addEventListener('blur',()=>{M.d=0;M.r=0;for(const k in K)K[k]=0;if(S=='play'&&!DIGN)S='pause'});
-addEventListener('keydown',e=>{if(KBW){kbSet(e);return}if(CAP){if(e.code=='Escape')CAP=null;return}K[e.code]=1;if(e.code=='Space'||e.code.startsWith('Arrow'))e.preventDefault();
+addEventListener('keydown',e=>{if(KBW){kbSet(e);return}if(CAP){if(e.code=='Escape'&&!CAP.pen)CAP=null;return}K[e.code]=1;if(e.code=='Space'||e.code.startsWith('Arrow'))e.preventDefault();
  if(e.code==KB.pause||e.code=='Escape')S=S=='play'?'pause':S=='pause'?'play':S;
  if((e.code=='Enter'||e.code=='Space')&&S!='play'&&S!='pick'&&S!='pause'){if(S=='title'&&!CHO&&!MDL()){go();K[e.code]=0}else if((S=='over'||S=='win')&&lk<=0){retry();K[e.code]=0}}
  if(e.code=='KeyM'&&S=='pause')quitAsk(toMenu);
@@ -984,16 +984,19 @@ function capBox(x,y,w,h){g.save();g.shadowColor='#000';g.shadowBlur=24;g.fillSty
 function capDraw(){if(!CAP)return;CAP.t+=Math.min(dt||.016,.05);if(CAP.st==2&&CAP.t>1.1){const f=CAP.f;CAP=null;setTimeout(f,0);return}MBI=BT.length;dim(.8);const x=310,w=340;
  if(CAP.st==0||CAP.st==.5){const y=250;capBox(x,y,w,120);g.fillStyle='#fff';g.strokeStyle='#9a9ab0';g.lineWidth=2;g.fillRect(x+24,y+38,30,30);g.strokeRect(x+24,y+38,30,30);
   if(CAP.st==.5){g.strokeStyle='#4a90e2';g.lineWidth=3;g.beginPath();g.arc(x+39,y+53,10,t*8,t*8+4);g.stroke();if(CAP.t>.8){CAP.st=1;CAP.t=0}}
-  T("I'm not a robot",x+70,y+53,17,'#222','left','normal');T('reCRAPTCHA',x+w-20,y+46,11,'#555','right');T('Privacy · Terms · Lies',x+w-20,y+62,9,'#888','right','normal');T(CAP.hard?'ALT+F4 DETECTED · ADVANCED HUMAN VERIFICATION':'Prove you are human to quit',W/2,y-24,16,CAP.hard?'#ff7a90':'#ffffff');
-  ckBtn(x+20,y+30,200,46,()=>{if(CAP.st==0){CAP.st=.5;CAP.t=0;snd(400,.05,'square',.03)}});btn('Cancel',W/2-60,y+200,120,38,()=>CAP=null,{sz:14});return}
+  T("I'm not a robot",x+70,y+53,17,'#222','left','normal');T('reCRAPTCHA',x+w-20,y+46,11,'#555','right');T('Privacy · Terms · Lies',x+w-20,y+62,9,'#888','right','normal');T(CAP.pen?'END TASK DETECTED · VERIFY TO KEEP PLAYING':CAP.hard?'ALT+F4 DETECTED · ADVANCED HUMAN VERIFICATION':'Prove you are human to quit',W/2,y-24,16,CAP.hard?'#ff7a90':'#ffffff');
+  ckBtn(x+20,y+30,200,46,()=>{if(CAP.st==0){CAP.st=.5;CAP.t=0;snd(400,.05,'square',.03)}});btn(CAP.pen?'Quit':'Cancel',W/2-60,y+200,120,38,()=>{if(CAP.pen)AAM.quit();else CAP=null},{sz:14});return}
  const y=120,G=CAPG[CAP.g];if(CAP.hard&&CAP.st==1){CAP.tl-=Math.min(dt||.016,.05);if(CAP.tl<=0)capRound(0,'Too slow. Humans get '+capT(0)+' seconds. Bots are faster. Reset.')}
  capBox(x,y,w,430);g.fillStyle=CAP.hard?'#c0303a':'#4a90e2';g.fillRect(x+10,y+10,w-20,72);T('Select all squares with',x+24,y+30,13,'#e8f0ff','left','normal');T(G[0],x+24,y+54,fitSz(G[0],20,w-48),'#fff','left');if(CAP.hard){T('Round '+(CAP.rd+1)+' of 5',x+w-24,y+30,13,'#ffe0e4','right');T(Math.max(0,CAP.tl).toFixed(1)+'s',x+w-24,y+54,16,'#fff','right');g.fillStyle='#ffffff55';g.fillRect(x+10,y+78,(w-20)*Math.max(0,CAP.tl)/capT(CAP.rd),4)}
  for(let i=0;i<9;i++){const tx=x+14+(i%3)*106,ty=y+92+(i/3|0)*92,sel=CAP.sel.has(i),pd=sel?8:0;g.fillStyle=['#cfd8e3','#d9cfe3','#e3d9cf'][(i+CAP.g)%3];g.fillRect(tx+pd,ty+pd,100-2*pd,86-2*pd);
   const lb=G[1][CAP.ord?CAP.ord[i]:i];if(lb)T(lb,tx+50,ty+43,lb[0]=='@'?40:fitSz(lb,14,88),lb=='@smile'?'#d08a00':'#333');else{g.fillStyle='#b8c0cc';g.fillRect(tx+20,ty+30,60,26)}
   if(sel){g.fillStyle='#4a90e2';circ(tx+14,ty+14,10);T('✓',tx+14,ty+14,13,'#fff')}ckBtn(tx,ty,100,86,()=>{if(CAP.st!=1)return;CAP.sel.has(i)?CAP.sel.delete(i):CAP.sel.add(i);snd(500,.03,'square',.03)})}
  if(CAP.msg)T(CAP.msg,W/2,y+378,fitSz(CAP.msg,13,w-24),CAP.st==2?'#1a8a3a':'#c0303a','center','normal');
- if(CAP.st==1){btn(CAP.hard?'Keep playing':'Cancel',x+14,y+392,110,30,()=>CAP=null,{sz:13});btn(CAP.sel.size?'Verify':'Skip',x+w-124,y+392,110,30,capVerify,{sz:13,c:'#7ab8ff'})}}
-function satDraw(){animDraw();rlDraw();sumDraw();cookieDraw();capDraw()}
+ if(CAP.st==1){btn(CAP.pen?'Quit':CAP.hard?'Keep playing':'Cancel',x+14,y+392,110,30,()=>{if(CAP.pen)AAM.quit();else CAP=null},{sz:13});btn(CAP.sel.size?'Verify':'Skip',x+w-124,y+392,110,30,capVerify,{sz:13,c:'#7ab8ff'})}}
+/* End task can't be blocked, so it is punished: the next launch opens the hard CAPTCHA on the title screen and only a solve clears it. */
+var KILLQ=0;if(NATV&&AAM.wasKilled)AAM.wasKilled().then(k=>{if(k)KILLQ=1}).catch(()=>{});
+function killCheck(){if(KILLQ&&S=='title'&&!CK&&!CAP){KILLQ=0;hardQuit();CAP.pen=1;CAP.f=()=>{try{AAM.penaltyDone()}catch(e){}}}}
+function satDraw(){killCheck();animDraw();rlDraw();sumDraw();cookieDraw();capDraw()}
 /* ---- animations: debris, dash afterimages, engine flame, card fly-in, button pop ---- */
 var DB=[],GHO=[],FLY=null,BPOP=null,PKT=0,CHV=[],MLS='',MTT=1;
 function debris(e){if(LOWG)return;for(let i=0;i<6;i++){const a=i/6*PI*2+MR()*.6,sp=120+MR()*200;DB.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:e.r*(.35+MR()*.3),a:MR()*7,va:(MR()-.5)*14,l:.55,c:e.c})}if(DB.length>160)DB.splice(0,DB.length-160)}
