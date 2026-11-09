@@ -1,7 +1,7 @@
 // One transparent native window. Menus use a 960x640 frame; runs in
 // multi-window mode stretch it over the work area and the game draws panels.
 const {app,BrowserWindow,ipcMain,screen,shell,powerMonitor}=require('electron');
-const path=require('node:path');
+const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
 const {createUpdateService}=require('./updater');
 const {createDisplays}=require('./displays');
 
@@ -65,6 +65,8 @@ ipcMain.on('aam:fullscreen',event=>{if(trusted(event)&&!desktop)main.setFullScre
 // Opt-in real RAM requisition (Settings, two confirmations). One helper at a time, hard-killed after its time.
 let hog=null;
 // Packaged builds keep the helper outside app.asar (build.asarUnpack) so it can run as its own process.
+// Same formula as ramhog.js: 12 s to fill per 32 GB of RAM, never less than 12 s.
+const fillLimit=()=>Math.max(12000,12000*os.totalmem()/(32*1024**3));
 function hogScript(){const p=path.join(__dirname,'ramhog.js'),u=p.replace('app.asar'+path.sep,'app.asar.unpacked'+path.sep);return u!==p&&fs.existsSync(u)?u:p}
 function hogStop(){if(hog){try{hog.kill()}catch(_){}hog=null}}
 ipcMain.on('aam:ram-hog',(event,ms)=>{
@@ -72,7 +74,7 @@ ipcMain.on('aam:ram-hog',(event,ms)=>{
  const child=require('node:child_process').fork(hogScript(),[String(ms),...(process.env.AAM_RAM_CAP_GB?[process.env.AAM_RAM_CAP_GB]:[])],{stdio:['ignore','ignore','ignore','ipc']});hog=child;
  const tell=m=>{if(main&&!main.isDestroyed())main.webContents.send('aam:ram',m)};
  child.on('message',tell);child.on('exit',()=>{if(hog===child)hog=null;tell({phase:'released'})});child.on('error',()=>{if(hog===child)hog=null;tell({phase:'error'})});
- setTimeout(()=>{if(hog===child)hogStop()},ms+16000).unref?.();
+ setTimeout(()=>{if(hog===child)hogStop()},ms+fillLimit()+5000).unref?.();
 });
 ipcMain.on('aam:ram-stop',event=>{if(trusted(event))hogStop()});
 ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});
