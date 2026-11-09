@@ -1,7 +1,7 @@
 {
   "name": "aam-saltman-must-die",
   "productName": "Aam Saltman Must Die",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "AI-satire bullet hell with a multi-window desktop overlay",
   "main": "electron/main.js",
   "private": true,
