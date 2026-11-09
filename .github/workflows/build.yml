@@ -46,4 +46,6 @@ jobs:
           V=$(node -p "require('./package.json').version")
           shopt -s globstar nullglob
           assets=(out/**/*.zip out/**/*.exe out/**/*.blockmap out/**/latest.yml)
-          gh release view "v$V" >/dev/null 2>&1 || gh release create "v$V" "${assets[@]}" --target "$GITHUB_SHA" --latest --title "Aam Saltman Must Die v$V" --notes "Windows: run the Setup installer for automatic updates, or extract the portable ZIP. Built from $GITHUB_SHA."
+          # Players only receive a push as an update when the version changes, so say so loudly instead of skipping silently.
+          if gh release view "v$V" >/dev/null 2>&1; then echo "::warning title=No update published::Release v$V already exists, so installed copies will not get this commit. Bump the version in package.json to ship it."; exit 0; fi
+          gh release create "v$V" "${assets[@]}" --target "$GITHUB_SHA" --latest --title "Aam Saltman Must Die v$V" --notes "Windows: run the Setup installer for automatic updates, or extract the portable ZIP. Built from $GITHUB_SHA."

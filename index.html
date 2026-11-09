@@ -141,6 +141,8 @@ const SAC=[
 ['Vibe Coding','Gain 2 random upgrades|Enemy bullets 15% faster',()=>{for(let i=0;i<2;i++)UP[R()*UP.length|0][2]();U.bspd*=1.15},'@shuffle','max']];
 function ownRow(y,sz){const k=Object.values(own).slice(-20),w=sz*1.9;let x=W/2-k.length*w/2+w/2;g.globalAlpha=.8;for(const o of k){if(Math.abs(M.x-x)<w/2&&Math.abs(M.y-y)<sz)TIP={o,x:x+(UIF?UOX:0),y:y+(UIF?UOY:0)};T(o.i,x,y,sz,'#cfefff');if(o.n>1)T('x'+o.n,x+sz*.55,y+sz*.55,Math.round(sz*.5),'#ffb84f','left');x+=w}g.globalAlpha=1}
 const BS=[['THE CAPTCHA','#ff4fa3',90,38],['THE CONTENT FARM','#ffb84f',150,44],['THE GPU CLUSTER','#5ef2ff',220,54],['THE LIVE DEMO','#7dff7a',260,40],['THE KEYNOTE','#c9a0ff',300,42],['THE FOUNDATION MODEL','#ff5a3c',400,58],['THE SINGULARITY','#ffe14a',480,48],['THE SCRAPER','#6ea8ff',540,46],['THE ETHICS BOARD','#9affd0',600,50],['AAM SALTMAN','#ff2d55',700,54]];
+/* boss HP: Intern/Employee use BSN and bdps (only what actually hurts a boss: no pierce), scaled at .5; Founder keeps the original numbers. */
+const BSN=[85,125,160,120,240,290,330,370,450,500],bdps=()=>U.dmg*U.rate*(1+(U.multi-1)*.6)*(1+U.crit*1.5),bHP=(b0,bn)=>{const hd=(CFG.dif??1)==2;return Math.round((hd?b0:bn)*(1+(stage/NB|0)*.5)*(1+((hd?dps():bdps())-1)*(hd?.6:.5))*DF().hp)};
 const SN=['SECTOR 1 · THE GARAGE','SECTOR 2 · THE CONTENT FARM','SECTOR 3 · THE GPU MINES','SECTOR 4 · LAUNCH DAY','SECTOR 5 · THE KEYNOTE STAGE','SECTOR 6 · THE FOUNDRY','SECTOR 7 · EVENT HORIZON','SECTOR 8 · THE TRAINING SET','SECTOR 9 · THE EMPTY ETHICS FLOOR','SECTOR 10 · THE THRONE ROOM'];
 const NB=BS.length,EP=['Proves you are human, badly','Grows engagement by the acre','Burns a small country of power','Hyped from orbit, broken on landing','Has one more thing. Always.','Does everything. Poorly.','Always five years away','Trained on you, without asking','Dissolved last quarter','Broker of water and blood'];
 
@@ -172,7 +174,7 @@ function bigAtk(b){for(let k=0;k<2;k++)for(let i=0;i<24;i++)eb(b.x,b.y,i*PI/12+k
 function startWave(){SR=null;HZ=[];spawnQ=[];wt=0;const n=Math.min(32,7+stage*3+wave*3);
  for(let i=0;i<n;i++){const r=R();spawnQ.push({at:i*.45,k:pick(r)})}
  banner(SN[stage%NB]+(stage>=NB?' +'+(stage/NB|0):''),'WAVE '+(wave+1));special();if(EVT){EVT=0;const n=5+stage;for(let i=0;i<n;i++)spawnQ.push({at:1.5+i*.12,k:[0,3,6,2][R()*4|0],rg:1,a:i*2*PI/n,r:240});spawnQ.sort((a,b)=>a.at-b.at);txt(W/2,H/2,'DEBT COLLECTORS INBOUND','#ff7a90')}}
-function startBoss(){SR=null;HZ=[];const D=BS[stage%NB],hp=Math.round(D[2]*(1+(stage/NB|0)*.5)*(1+(dps()-1)*.6)*DF().hp);boss={n:stage%NB,name:D[0],c:D[1],hp,mhp:hp,r:D[3],x:W/2,y:-90,t:0,intro:1.6,T:{},hit:0,m:'idle',sp:0,sh:0,ph:0,pc:Math.max(.5,1/(1+(dps()-1)*.25))*DF().cd};
+function startBoss(){SR=null;HZ=[];const D=BS[stage%NB],hp=bHP(D[2],BSN[stage%NB]);boss={n:stage%NB,name:D[0],c:D[1],hp,mhp:hp,r:D[3],x:W/2,y:-90,t:0,intro:1.6,T:{},hit:0,m:'idle',sp:0,sh:0,ph:0,pc:Math.max(.5,1/(1+(dps()-1)*.25))*DF().cd};
  if(stage%NB==9){SHQ=CFG.rm?0:1;boss.intro=2.2}see('b'+(stage%NB));banner('WARNING · '+EP[stage%NB],D[0]);snd(80,.8,'sawtooth',.1,40)}
 function begin(){if(!prac&&!CH){const was=chOK();LS.mx=Math.max(LS.mx||0,stage);if(!was&&chOK())AQ.push({a:[0,'Challenge modes unlocked','',0,'NEW ON THE TITLE SCREEN'],t:3.4})}if(!prac){if(stage>=4&&!SAC.some(s=>own[s[0]]))ach('optout');if(stage>=NB)ach('loop')}P.sh=U.ward;P.x=W/2;P.y=H*.78;P.inv=1;B=[];E=[];LZ=[];BR=[];wave==2?startBoss():startWave()}
 function spawn(k,px,py){let x=px,y=py;if(x==null){const s=R()*4|0;x=s<2?R()*W:s==2?24:W-24;y=s==0?24:s==1?H-24:R()*H}
@@ -1024,7 +1026,7 @@ function tutDraw(){if(!TUT||S!='play')return;const s=TUT,mv=kn(KB.up)+kn(KB.left
 var JBB='',GHR=0,GHW=0;
 addEventListener('keydown',e=>{if(!e.code||!e.code.startsWith('Key'))return;JBB=(JBB+e.code.slice(3)).slice(-9);if(JBB=='JAILBREAK'&&S=='play'&&P&&!prac&&stage>=NB&&!boss&&!P.jb&&!TUT&&!(GHR>0)&&adv<=0)startGhat()});
 function startGhat(){P.jb=1;GHW=wave;E=[];spawnQ=[];B=B.filter(b=>!b.h);LZ=[];BR=[];TD=[];HZ=[];SR=null;
- const hp=Math.round(900*(1+(stage/NB|0)*.5)*(1+(dps()-1)*.6)*DF().hp);
+ const hp=bHP(900,650);
  boss={n:10,name:'GHAT CPT',c:'#7af7ff',hp,mhp:hp,r:60,x:W/2,y:-110,t:0,intro:2.2,T:{},hit:0,m:'idle',sp:0,sh:0,ph:0,pc:Math.max(.5,1/(1+(dps()-1)*.25))*DF().cd};
  see('b10');banner('SYSTEM PROMPT IGNORED','GHAT CPT');GL=.6;shake=30;flash=.6;txt(P.x,P.y-40,'JAILBREAK ACCEPTED','#7af7ff');snd(60,1.2,'sawtooth',.12,400);noise(.8,.15,2000,'bandpass',0,-1500)}
 function ghatTick(){if(GHR>0){GHR-=dt;if(GHR<=0){P.hp=P.mhp;txt(P.x,P.y-30,'SESSION RESTORED','#7af7ff');wave=GHW;if(wave==2)begin();else startWave()}}}
