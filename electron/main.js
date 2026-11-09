@@ -1,11 +1,13 @@
 // One transparent native window. Menus use a 960x640 frame; runs in
 // multi-window mode stretch it over the work area and the game draws panels.
-const {app,BrowserWindow,ipcMain,screen,shell}=require('electron');
+const {app,BrowserWindow,ipcMain,screen,shell,powerMonitor}=require('electron');
 const path=require('node:path');
 const {createUpdateService}=require('./updater');
 const {createDisplays}=require('./displays');
 
-let main=null,desktop=false,menuBounds=null,updates=null,arena={w:960,h:640};
+// Alt+F4 / taskbar close is intercepted: the game asks for a (very hard) CAPTCHA first.
+// Real quits (the in-game Quit, update installs, Windows shutdown, a crashed page) set allowClose.
+let allowClose=false,closeAsks=0,main=null,desktop=false,menuBounds=null,updates=null,arena={w:960,h:640};
 const displays=createDisplays({app,screen,getWindow:()=>main,isDesktop:()=>desktop,getArena:()=>arena,onSelected:d=>{if(!desktop)menuBounds=displays.menuRect(d.workArea)}});
 // Restoring after "minimize all" can leave a frameless window at a tiny size,
 // so the overlay is always put back over the whole work area.
@@ -23,6 +25,11 @@ function createMain(){
  main.once('ready-to-show',()=>main.show());
  main.on('page-title-updated',e=>e.preventDefault());
  main.on('restore',()=>{fillWorkArea();setTimeout(fillWorkArea,150)});
+ main.on('close',e=>{if(allowClose||!main.webContents||main.webContents.isCrashed())return;e.preventDefault();closeAsks++;
+  if(main.isMinimized())main.restore();if(!main.isVisible())main.show();main.focus();main.webContents.send('aam:close-request',closeAsks)});
+ main.on('session-end',()=>{allowClose=true});
+ main.webContents.on('render-process-gone',()=>{allowClose=true});
+ main.webContents.on('unresponsive',()=>{allowClose=true});
  main.on('closed',()=>{main=null;app.quit()});
  main.loadFile(path.join(__dirname,'..','index.html'));
 }
@@ -55,7 +62,7 @@ ipcMain.on('aam:arena',(event,w,h)=>{
 // Windows ignores minimize while a mouse button is still held on a frameless window, so retry briefly.
 ipcMain.on('aam:minimize',event=>{if(!trusted(event))return;let n=0;const go=()=>{if(!main||main.isDestroyed()||main.isMinimized())return;main.minimize();if(++n<6)setTimeout(go,120)};go()});
 ipcMain.on('aam:fullscreen',event=>{if(trusted(event)&&!desktop)main.setFullScreen(!main.isFullScreen())});
-ipcMain.on('aam:quit',event=>{if(trusted(event))app.quit()});
+ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});
 ipcMain.handle('aam:displays',event=>trusted(event)?displays.list():null);
 ipcMain.handle('aam:display-select',(event,id)=>{if(!trusted(event))throw new Error('Unknown window');return displays.select(id)});
 ipcMain.handle('aam:update-state',event=>trusted(event)?updates?.getState():null);
@@ -69,10 +76,11 @@ else{
  app.on('second-instance',()=>{if(main){if(main.isMinimized())main.restore();main.focus()}});
  app.whenReady().then(()=>{
   createMain();
+  powerMonitor.on('shutdown',()=>{allowClose=true});
   updates=createUpdateService({app,notify:state=>{if(main&&!main.isDestroyed())main.webContents.send('aam:update',state)}});
   const sync=()=>displays.sync();
   screen.on('display-metrics-changed',sync);screen.on('display-removed',sync);screen.on('display-added',sync);
  });
 }
-app.on('before-quit',()=>updates?.dispose());
+app.on('before-quit',()=>{allowClose=true;updates?.dispose()});
 app.on('window-all-closed',()=>app.quit());

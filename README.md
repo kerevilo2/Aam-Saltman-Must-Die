@@ -41,7 +41,9 @@ A cookie banner greets you on every launch (good luck rejecting it), the boot
 screen has AI-generated tips, the HUD tracks Aam Corp's valuation (it only goes
 up), GHAT CPT throttles you with fake rate-limit pop-ups, summarises each lost run
 with total confidence, and the Stats page counts the water and power your runs
-used. Quitting asks you to prove you are human. None of it changes difficulty.
+used. Quitting asks you to prove you are human, and in the desktop app Alt+F4
+summons a much harder, timed CAPTCHA (one wrong answer resets it). None of it
+changes difficulty.
 
 ## Screen ratio
 
