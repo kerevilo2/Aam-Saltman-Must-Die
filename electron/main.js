@@ -15,7 +15,7 @@ const trusted=e=>main&&!main.isDestroyed()&&e.sender===main.webContents;
 function createMain(){
  const d=displays.current();
  main=new BrowserWindow({...displays.menuRect(d.workArea),frame:false,transparent:true,backgroundColor:'#00000000',hasShadow:false,thickFrame:false,
-  resizable:false,maximizable:false,fullscreenable:true,show:false,title:'Aam Saltman Must Die',autoHideMenuBar:true,
+  resizable:false,maximizable:false,fullscreenable:true,show:false,title:'Aam Saltman Must Die',autoHideMenuBar:true,icon:path.join(__dirname,'icon.png'),
   webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false}});
  main.setMenu(null);
  main.webContents.setWindowOpenHandler(()=>({action:'deny'}));

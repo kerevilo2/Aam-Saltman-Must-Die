@@ -1,7 +1,7 @@
 {
   "name": "aam-saltman-must-die",
   "productName": "Aam Saltman Must Die",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "AI-satire bullet hell with a multi-window desktop overlay",
   "main": "electron/main.js",
   "private": true,
@@ -28,7 +28,8 @@
     "appId": "io.github.kerevilo2.aamsaltmanmustdie",
     "productName": "Aam Saltman Must Die",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "index.html",
@@ -49,7 +50,8 @@
         "zip"
       ],
       "artifactName": "AamSaltmanMustDie-v${version}-win-${arch}.${ext}",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true,
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "artifactName": "AamSaltmanMustDie-Setup-v${version}-win-${arch}.${ext}",
@@ -57,7 +59,10 @@
       "perMachine": false,
       "allowElevation": false,
       "deleteAppDataOnUninstall": false,
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
     }
   }
 }
