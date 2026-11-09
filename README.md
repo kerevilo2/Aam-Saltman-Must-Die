@@ -45,6 +45,11 @@ used. Quitting asks you to prove you are human, and in the desktop app Alt+F4
 summons a much harder, timed CAPTCHA (one wrong answer resets it). None of it
 changes difficulty.
 
+Desktop only, off by default: **Settings → Real RAM attack** (two confirmations)
+makes Aam Saltman's RAM attack really fill your PC's free memory for about
+8 seconds, then give it back. It always leaves max(1.5 GB, 8%) free, runs in a
+separate helper process, and turns off with one click.
+
 ## Screen ratio
 
 **Settings → Screen ratio** is **Auto** by default: it detects your monitor's

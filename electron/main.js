@@ -62,6 +62,19 @@ ipcMain.on('aam:arena',(event,w,h)=>{
 // Windows ignores minimize while a mouse button is still held on a frameless window, so retry briefly.
 ipcMain.on('aam:minimize',event=>{if(!trusted(event))return;let n=0;const go=()=>{if(!main||main.isDestroyed()||main.isMinimized())return;main.minimize();if(++n<6)setTimeout(go,120)};go()});
 ipcMain.on('aam:fullscreen',event=>{if(trusted(event)&&!desktop)main.setFullScreen(!main.isFullScreen())});
+// Opt-in real RAM requisition (Settings, two confirmations). One helper at a time, hard-killed after its time.
+let hog=null;
+// Packaged builds keep the helper outside app.asar (build.asarUnpack) so it can run as its own process.
+function hogScript(){const p=path.join(__dirname,'ramhog.js'),u=p.replace('app.asar'+path.sep,'app.asar.unpacked'+path.sep);return u!==p&&fs.existsSync(u)?u:p}
+function hogStop(){if(hog){try{hog.kill()}catch(_){}hog=null}}
+ipcMain.on('aam:ram-hog',(event,ms)=>{
+ if(!trusted(event)||hog)return;ms=Math.max(1000,Math.min(30000,+ms||8400));
+ const child=require('node:child_process').fork(hogScript(),[String(ms),...(process.env.AAM_RAM_CAP_GB?[process.env.AAM_RAM_CAP_GB]:[])],{stdio:['ignore','ignore','ignore','ipc']});hog=child;
+ const tell=m=>{if(main&&!main.isDestroyed())main.webContents.send('aam:ram',m)};
+ child.on('message',tell);child.on('exit',()=>{if(hog===child)hog=null;tell({phase:'released'})});child.on('error',()=>{if(hog===child)hog=null;tell({phase:'error'})});
+ setTimeout(()=>{if(hog===child)hogStop()},ms+1500).unref?.();
+});
+ipcMain.on('aam:ram-stop',event=>{if(trusted(event))hogStop()});
 ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});
 ipcMain.handle('aam:displays',event=>trusted(event)?displays.list():null);
 ipcMain.handle('aam:display-select',(event,id)=>{if(!trusted(event))throw new Error('Unknown window');return displays.select(id)});
@@ -82,5 +95,5 @@ else{
   screen.on('display-metrics-changed',sync);screen.on('display-removed',sync);screen.on('display-added',sync);
  });
 }
-app.on('before-quit',()=>{allowClose=true;updates?.dispose()});
+app.on('before-quit',()=>{allowClose=true;hogStop();updates?.dispose()});
 app.on('window-all-closed',()=>app.quit());
