@@ -72,7 +72,7 @@ ipcMain.on('aam:ram-hog',(event,ms)=>{
  const child=require('node:child_process').fork(hogScript(),[String(ms),...(process.env.AAM_RAM_CAP_GB?[process.env.AAM_RAM_CAP_GB]:[])],{stdio:['ignore','ignore','ignore','ipc']});hog=child;
  const tell=m=>{if(main&&!main.isDestroyed())main.webContents.send('aam:ram',m)};
  child.on('message',tell);child.on('exit',()=>{if(hog===child)hog=null;tell({phase:'released'})});child.on('error',()=>{if(hog===child)hog=null;tell({phase:'error'})});
- setTimeout(()=>{if(hog===child)hogStop()},ms+1500).unref?.();
+ setTimeout(()=>{if(hog===child)hogStop()},ms+16000).unref?.();
 });
 ipcMain.on('aam:ram-stop',event=>{if(trusted(event))hogStop()});
 ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});

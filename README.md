@@ -46,9 +46,10 @@ summons a much harder, timed CAPTCHA (one wrong answer resets it). None of it
 changes difficulty.
 
 Desktop only, off by default: **Settings → Real RAM attack** (two confirmations)
-makes Aam Saltman's RAM attack really fill your PC's free memory for about
-8 seconds, then give it back. It always leaves max(1.5 GB, 8%) free, runs in a
-separate helper process, and turns off with one click.
+makes Aam Saltman's RAM attack take nearly all of your PC's physical RAM (all
+but 1.5 GB), pushing other programs out to the page file, for about 8 seconds,
+then give it back. It runs in a separate helper process, never fills a
+fixed-size page file, and turns off with one click.
 
 ## Screen ratio
 

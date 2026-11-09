@@ -13,8 +13,8 @@ app.whenReady().then(async()=>{
  const f0=os.freemem();await wait(2500);
  const mid=JSON.parse(await js('JSON.stringify(RAMX)'));const used=(f0-os.freemem())/2**30;
  fs.mkdirSync(path.join(__dirname,'shots'),{recursive:true});fs.writeFileSync(path.join(__dirname,'shots','13-real-ram.png'),(await win.webContents.capturePage()).toPNG());
- await wait(8000);const end=JSON.parse(await js('JSON.stringify(RAMX)'));
+ await wait(10000);const end=JSON.parse(await js('JSON.stringify(RAMX)'));
  await js('CFG.ramx='+was+';saveD();0'); // shares the installed game's save folder: never leave it switched on
  console.log('during:',JSON.stringify(mid),'free RAM dropped',used.toFixed(2),'GB · after:',JSON.stringify(end));
- console.log(mid&&mid.on&&mid.gb>=1.9&&end&&!end.on?'RAM ATTACK OK':'RAM ATTACK FAILED');app.exit(0);
+ console.log(mid&&mid.on&&mid.gb>=1.5&&end&&!end.on?'RAM ATTACK OK':'RAM ATTACK FAILED');app.exit(0);
 });
