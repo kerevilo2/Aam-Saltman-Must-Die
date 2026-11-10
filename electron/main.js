@@ -4,9 +4,12 @@ const {app,BrowserWindow,ipcMain,screen,shell,powerMonitor}=require('electron');
 const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
 const {createUpdateService}=require('./updater');
 const {createDisplays}=require('./displays');
+const {createSession}=require('./session');
 
 // Alt+F4 / taskbar close is intercepted: the game asks for a (very hard) CAPTCHA first.
 // Real quits (the in-game Quit, update installs, Windows shutdown, a crashed page) set allowClose.
+// End task cannot be blocked, so a force-close during a run is remembered and the next launch asks for the CAPTCHA (see session.js).
+let session={wasKilled:()=>false,arm(){},clean(){},penaltyDone(){}};
 let allowClose=false,closeAsks=0,main=null,desktop=false,menuBounds=null,updates=null,arena={w:960,h:640};
 const displays=createDisplays({app,screen,getWindow:()=>main,isDesktop:()=>desktop,getArena:()=>arena,onSelected:d=>{if(!desktop)menuBounds=displays.menuRect(d.workArea)}});
 // Restoring after "minimize all" can leave a frameless window at a tiny size,
@@ -27,9 +30,9 @@ function createMain(){
  main.on('restore',()=>{fillWorkArea();setTimeout(fillWorkArea,150)});
  main.on('close',e=>{if(allowClose||!main.webContents||main.webContents.isCrashed())return;e.preventDefault();closeAsks++;
   if(main.isMinimized())main.restore();if(!main.isVisible())main.show();main.focus();main.webContents.send('aam:close-request',closeAsks)});
- main.on('session-end',()=>{allowClose=true});
- main.webContents.on('render-process-gone',()=>{allowClose=true});
- main.webContents.on('unresponsive',()=>{allowClose=true});
+ main.on('session-end',()=>{allowClose=true;session.clean()});
+ main.webContents.on('render-process-gone',()=>{allowClose=true;session.clean()});
+ main.webContents.on('unresponsive',()=>{allowClose=true;session.clean()});
  main.on('closed',()=>{main=null;app.quit()});
  main.loadFile(path.join(__dirname,'..','index.html'));
 }
@@ -78,25 +81,29 @@ ipcMain.on('aam:ram-hog',(event,ms)=>{
  clearTimeout(hogKill);hogKill=setTimeout(()=>{if(hog===child)hogStop()},ms+fillLimit()+5000).unref?.();
 });
 ipcMain.on('aam:ram-stop',event=>{if(trusted(event))hogStop()});
+ipcMain.handle('aam:was-killed',event=>trusted(event)?session.wasKilled():false);
+ipcMain.on('aam:arm',(event,on)=>{if(trusted(event))session.arm(!!on)});
+ipcMain.on('aam:penalty-done',event=>{if(trusted(event))session.penaltyDone()});
 ipcMain.on('aam:quit',event=>{if(trusted(event)){allowClose=true;app.quit()}});
 ipcMain.handle('aam:displays',event=>trusted(event)?displays.list():null);
 ipcMain.handle('aam:display-select',(event,id)=>{if(!trusted(event))throw new Error('Unknown window');return displays.select(id)});
 ipcMain.handle('aam:update-state',event=>trusted(event)?updates?.getState():null);
 ipcMain.handle('aam:update-check',event=>trusted(event)?updates?.check():null);
 ipcMain.handle('aam:update-auto',(event,value)=>trusted(event)?updates?.setAutomatic(value):null);
-ipcMain.handle('aam:update-install',event=>trusted(event)?updates?.install():false);
+ipcMain.handle('aam:update-install',event=>{if(!trusted(event))return false;session.clean();return updates?.install()});
 ipcMain.on('aam:open-releases',event=>{if(trusted(event))shell.openExternal(require('../package.json').homepage+'/releases/latest')});
 
 if(!app.requestSingleInstanceLock())app.quit();
 else{
  app.on('second-instance',()=>{if(main){if(main.isMinimized())main.restore();main.focus()}});
  app.whenReady().then(()=>{
+  session=createSession({dir:app.getPath('userData'),enabled:app.isPackaged&&!process.env.AAM_NO_PENALTY});
   createMain();
-  powerMonitor.on('shutdown',()=>{allowClose=true});
+  powerMonitor.on('shutdown',()=>{allowClose=true;session.clean()});
   updates=createUpdateService({app,notify:state=>{if(main&&!main.isDestroyed())main.webContents.send('aam:update',state)}});
   const sync=()=>displays.sync();
   screen.on('display-metrics-changed',sync);screen.on('display-removed',sync);screen.on('display-added',sync);
  });
 }
-app.on('before-quit',()=>{allowClose=true;hogStop();updates?.dispose()});
+app.on('before-quit',()=>{allowClose=true;session.clean();hogStop();updates?.dispose()});
 app.on('window-all-closed',()=>app.quit());

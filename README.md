@@ -21,6 +21,15 @@ Switch with the **mode button on the title screen** (next to Difficulty) or in
 **Settings → Display**. Settings also has **Monitor**, **Clear desktop on run**
 (minimizes other windows when a run starts, Windows only) and **updates**.
 
+## Daily Standup and rerolls
+
+- **Daily** (next to Start run): one seeded run per day, with the same waves and
+  card offers for everyone. Your best score of the day is saved.
+- **Reroll** on the card pick screen redraws the three cards for tokens (50, then
+  double each time in a run).
+- Later bosses have more health segments (4 for bosses 7-9, 5 for Aam Saltman),
+  each extra one breaking with its own twist.
+
 ## Settings
 
 - **Graphics**: Auto (default), High or Low. Auto starts on Low on PCs with 4
@@ -42,8 +51,9 @@ screen has AI-generated tips, the HUD tracks Aam Corp's valuation (it only goes
 up), GHAT CPT throttles you with fake rate-limit pop-ups, summarises each lost run
 with total confidence, and the Stats page counts the water and power your runs
 used. Quitting asks you to prove you are human, and in the desktop app Alt+F4
-summons a much harder, timed CAPTCHA (one wrong answer resets it). None of it
-changes difficulty.
+summons a much harder, timed CAPTCHA (one wrong answer resets it). Force-closing
+the game during a run (End task) brings that CAPTCHA back on the next launch.
+None of it changes difficulty.
 
 Desktop only, off by default: **Settings → Real RAM attack** (two confirmations)
 makes Aam Saltman's RAM attack take nearly all of your PC's physical RAM (all

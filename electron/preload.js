@@ -21,5 +21,8 @@ contextBridge.exposeInMainWorld('AAM',{
  ramHog:ms=>ipcRenderer.send('aam:ram-hog',+ms),
  ramStop:()=>ipcRenderer.send('aam:ram-stop'),
  onRam:callback=>ipcRenderer.on('aam:ram',(_,m)=>callback(m)),
+ wasKilled:()=>ipcRenderer.invoke('aam:was-killed'),
+ arm:on=>ipcRenderer.send('aam:arm',!!on),
+ penaltyDone:()=>ipcRenderer.send('aam:penalty-done'),
  onCloseRequest:callback=>ipcRenderer.on('aam:close-request',(_,n)=>callback(n))
 });

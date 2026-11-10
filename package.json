@@ -1,7 +1,7 @@
 {
   "name": "aam-saltman-must-die",
   "productName": "Aam Saltman Must Die",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "AI-satire bullet hell with a multi-window desktop overlay",
   "main": "electron/main.js",
   "private": true,
@@ -13,11 +13,11 @@
   "author": "kerevilo2",
   "scripts": {
     "start": "electron .",
-    "test": "node tests/headless.js && node tests/updater.js",
+    "test": "node tests/headless.js && node tests/updater.js && node tests/session.js",
     "test:electron": "electron tests/electron-shot.js",
     "test:close": "electron tests/electron-close.js",
     "build:win": "electron-builder --win nsis zip --x64 --publish never",
-    "test:packaged": "electron-builder --win dir --x64 --publish never && node tests/packaged-ram.js"
+    "test:packaged": "electron-builder --win dir --x64 --publish never && node tests/packaged-ram.js && node tests/packaged-penalty.js"
   },
   "devDependencies": {
     "electron": "44.9.2",
